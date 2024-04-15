@@ -12,7 +12,7 @@ const createNew = async (req, res, next) => {
    * và custom message phía FE cho đẹp
    * BE chỉ cần validate đảm bảo dữ liệu chuẩn xác và trả về message mặc định từ thư viện
    * là được.
-   * Quan trọng: việc validate dữ liệu bắt buộc phải có ở phía BE vì đây là điểm cuối để 
+   * Quan trọng: việc validate dữ liệu bắt buộc phải có ở phía BE vì đây là điểm cuối để
    * lưu dữ liệu vào DB
    * và thông thường trong thực tế. điều tốt nhất cho hệ thống là hãy luôn validate dữ liệu
    * ở cả BE VÀ fe
@@ -29,14 +29,11 @@ const createNew = async (req, res, next) => {
   })
 
   try {
-    // console.log(req.body)
-
     // set abortEarly để không bỏ qua kiểm tra khi đã có lỗi phía trc
     await correctCondition.validateAsync(req.body, { abortEarly: false })
-    // next()
-    res.status(StatusCodes.CREATED).json({ message: 'POST from validation: API create new board' })
+    //sau khi validate xong thi request di tiep qua controller
+    next()
   } catch (error) {
-    console.log(error)
     res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
       errors: new Error(error).message
     })
