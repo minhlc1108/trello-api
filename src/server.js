@@ -10,6 +10,7 @@ import exitHook from 'async-exit-hook'
 import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
 import { env } from '~/config/environment'
 import { API_V1 } from '~/routes/v1'
+import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 const START_SERVER = () => {
   const app = express()
 
@@ -20,6 +21,9 @@ const START_SERVER = () => {
   app.use(express.json())
 
   app.use('/v1', API_V1)
+
+  //Middleware xử lý lỗi tập trung
+  app.use(errorHandlingMiddleware)
 
   app.listen(port, hostname, () => {
     console.log(`Hello Trung Quan Dev, I am running at http://${hostname}:${port}`)
