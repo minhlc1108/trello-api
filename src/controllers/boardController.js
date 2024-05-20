@@ -7,18 +7,14 @@ import { StatusCodes } from 'http-status-codes'
 
 const createNew = async (req, res, next) => {
   try {
-    console.log(req.body)
+    // console.log(req.body)
 
     // gui den tang service
 
     // tra ve client
     res.status(StatusCodes.CREATED).json({ message: 'POST from validation: API create new board' })
 
-  } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      errors: error.message
-    })
-  }
+  } catch (error) { next(error) }
 }
 
 
