@@ -4,15 +4,16 @@
  * "A bit of fragrance clings to the hand that gives flowers!"
  */
 import { StatusCodes } from 'http-status-codes'
-
+import { boardService } from '~/services/boardService'
 const createNew = async (req, res, next) => {
   try {
     // console.log(req.body)
 
-    // gui den tang service
+    // dieu huong du lieu den tang service
+    const createdBoard = await boardService.creatNew(req.body)
 
     // tra ve client
-    res.status(StatusCodes.CREATED).json({ message: 'POST from validation: API create new board' })
+    res.status(StatusCodes.CREATED).json(createdBoard)
 
   } catch (error) { next(error) }
 }
