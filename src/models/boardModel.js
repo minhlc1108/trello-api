@@ -80,8 +80,21 @@ const getDetails = async (id) => {
       }
     ]).toArray()
 
-    return result[0] || {}
+    return result[0] || null
   } catch (error) { throw new Error(error) }
+}
+
+// push columnId vào cuối mảng columnOrderIds
+const pushColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $push: { columnOrderIds: new ObjectId(column._id) } },
+      { ReturnDocument: 'after' }
+    )
+
+    return result.value
+  } catch (error) { throw error }
 }
 
 export const boardModel = {
@@ -89,7 +102,8 @@ export const boardModel = {
   BOARD_COLLECTION_SCHEMA,
   creatNew,
   findOneById,
-  getDetails
+  getDetails,
+  pushColumnOrderIds
 }
 
 // boardId : 6658b2bbefe6fa78ac4369d0
