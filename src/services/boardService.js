@@ -8,6 +8,7 @@ import { slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
+import { cloneDeep } from 'lodash'
 const creatNew = async (reqBody) => {
   try {
     const newBoard = {
@@ -23,7 +24,6 @@ const creatNew = async (reqBody) => {
     // console.log(getNewBoard)
     //Thêm xử lý logic khác với các collection khác tùy đặc thù dự án
     // Gửi email, notification về cho admin khi 1 cái board mới được tạo
-
     return getNewBoard
   } catch (error) { throw error }
 }
@@ -37,7 +37,14 @@ const getDetails = async (boardId) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
     }
 
-    return board
+    const resBoard = cloneDeep(board)
+
+    resBoard.columns.forEach(column => {
+      column.cards = resBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
+    })
+
+    delete resBoard.cards
+    return resBoard
   } catch (error) { throw error }
 }
 
