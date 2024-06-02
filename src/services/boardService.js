@@ -1,5 +1,7 @@
 import { slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
+import { columnModel } from '~/models/columnModel'
+import { cardModel } from '~/models/cardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
@@ -34,7 +36,11 @@ const getDetails = async (boardId) => {
     const resBoard = cloneDeep(board)
 
     resBoard.columns.forEach(column => {
-      column.cards = resBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
+      // dùng equals method ObjectId MongoDB
+      column.cards = resBoard.cards.filter(card => card.columnId.equals(column._id))
+
+      // dùng toString JS so sánh
+      // column.cards = resBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
     })
 
     delete resBoard.cards
@@ -42,7 +48,33 @@ const getDetails = async (boardId) => {
   } catch (error) { throw error }
 }
 
+const update = async (boardId, reqBody) => {
+  try {
+    const updateData = {
+      ...reqBody,
+      updatedAt: Date.now()
+    }
+    const updatedBoard = await boardModel.update(boardId, updateData)
+
+    return updatedBoard
+  } catch (error) { throw error }
+}
+
+const moveCardToDifferenceColumn = async (reqBody) => {
+  try {
+    //  b1: Cập nhật mảng cardOrderIds của Column ban đầu chứa nó (bản chất là xóa cardId đi trong mảng)
+    await columnModel.update(reqBody.prevColumnId, { cardOrderIds: reqBody.prevCardOrderIds, updatedAt: Date.now() })
+    //  b2: Cập nhật mảng cardOrderIds của Column tiếp theo(bản chất là thêm cardId vào trong mảng)
+    await columnModel.update(reqBody.nextColumnId, { cardOrderIds: reqBody.nextCardOrderIds, updatedAt: Date.now() })
+    //  b3: Cập nhật mảng trường columnId mới của card đã kéo
+    await cardModel.update(reqBody.cardId, { columnId: reqBody.nextColumnId, updatedAt: Date.now() })
+
+    return { result: 'successfully!' }
+  } catch (error) { throw error }
+}
 export const boardService = {
   creatNew,
-  getDetails
+  getDetails,
+  update,
+  moveCardToDifferenceColumn
 }
