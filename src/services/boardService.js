@@ -69,7 +69,7 @@ const moveCardToDifferenceColumn = async (reqBody) => {
     //  b3: Cập nhật mảng trường columnId mới của card đã kéo
     await cardModel.update(reqBody.cardId, { columnId: reqBody.nextColumnId, updatedAt: Date.now() })
 
-    return { result: 'successfully!' }
+    return { updateResult: 'successfully!' }
   } catch (error) { throw error }
 }
 export const boardService = {
