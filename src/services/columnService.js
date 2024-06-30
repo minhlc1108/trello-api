@@ -4,7 +4,7 @@ import { cardModel } from '~/models/cardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 
-const creatNew = async (reqBody) => {
+const createNew = async (reqBody) => {
   try {
     const newColumn = {
       ...reqBody
@@ -59,7 +59,7 @@ const deleteItem = async (columnId) => {
 
 
 export const columnService = {
-  creatNew,
+  createNew,
   update,
   deleteItem
 }
