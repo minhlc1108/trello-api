@@ -5,7 +5,7 @@ const createNew = async (req, res, next) => {
     // console.log(req.body)
 
     // dieu huong du lieu den tang service
-    const createdColumn = await columnService.creatNew(req.body)
+    const createdColumn = await columnService.createNew(req.body)
 
     // tra ve client
     res.status(StatusCodes.CREATED).json(createdColumn)

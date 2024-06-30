@@ -144,6 +144,3 @@ export const boardModel = {
   update,
   pullColumnOrderIds
 }
-
-// boardId : 6658b2bbefe6fa78ac4369d0
-// columnId: 6658b9c5948c0c8c7b7a04d4
