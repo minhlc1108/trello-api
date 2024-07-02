@@ -8,6 +8,8 @@ export const WHITELIST_DOMAINS = [
   // sau này có thêm deploy
 ]
 
+export const CLIENT_ROOT = 'http://localhost:5173'
+
 export const BOARD_TYPES = {
   PUBLIC: 'public',
   PRIVATE: 'private'

@@ -24,6 +24,22 @@ const createNew = async (reqBody) => {
   }
 }
 
+const getUser = async (email) => {
+  try {
+    const user = await userModel.findOneByEmail(email)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
+    }
+
+    delete user.verifyToken
+    delete user.password
+    return user
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
-  createNew
+  createNew,
+  getUser
 }
