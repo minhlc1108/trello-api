@@ -8,5 +8,6 @@ const Router = express.Router()
 Router.route('/')
   .post(userValidation.createNew, userController.createNew)
 
-
+Router.route('/:email')
+  .get(userController.getUser)
 export const userRoute = Router
