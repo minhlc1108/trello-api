@@ -13,8 +13,7 @@ const sendEmailVerification = async (params) => {
   const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail()
   sendSmtpEmail.subject = 'Verifcation account to use Trello Clone'
   sendSmtpEmail.htmlContent = `<html>
-  <b>Here is your verification link:</b>
-  <br>
+  <h3>Here is your verification link:</h3>
   <a href='${link}'>${link}</a>
   <br>
   <b>-Admin Trello Clone-</b>
