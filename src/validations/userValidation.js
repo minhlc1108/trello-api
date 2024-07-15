@@ -1,11 +1,12 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
+import { EMAIL_RULE, PASSWORD_RULE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
-    email: Joi.string().required().pattern(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i),
-    password: Joi.string().required().pattern(/^(?=.*\d)(?=.*[a-z]).{8,}$/i)
+    email: Joi.string().required().pattern(EMAIL_RULE),
+    password: Joi.string().required().pattern(PASSWORD_RULE)
   })
 
   try {
@@ -21,6 +22,40 @@ const createNew = async (req, res, next) => {
 
 }
 
+const verificationAccount = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    email: Joi.string().required().pattern(EMAIL_RULE),
+    token: Joi.string().required()
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error) {
+    const errorMessage = new Error(error).message // lay ValidationError: message
+    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
+    next(customError)
+  }
+}
+
+const signIn = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    email: Joi.string().required().pattern(EMAIL_RULE).message('Email is invalid.'),
+    password: Joi.string().required()
+  })
+  try {
+    await correctCondition.validateAsync(req.body)
+    next()
+  } catch (error) {
+    console.log(error)
+    const errorMessage = new Error(error).message // lay ValidationError: message
+    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
+    next(customError)
+  }
+}
+
 export const userValidation = {
-  createNew
+  createNew,
+  signIn,
+  verificationAccount,
 }
