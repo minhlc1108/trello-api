@@ -41,9 +41,20 @@ const signIn = async (req, res, next) => {
   }
 }
 
+const refreshToken = (req, res, next) => {
+  try {
+    const result = userService.refreshToken(req.cookies?.refreshToken)
+    res.cookie('accessToken', result.accessToken, { httpOnly: true, secure: true, sameSize: 'none' })
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userController = {
   createNew,
   getUser,
   verificationAccount,
-  signIn
+  signIn,
+  refreshToken
 }
