@@ -109,9 +109,22 @@ const signIn = async (reqBody) => {
   }
 }
 
+const refreshToken = (clientRefreshToken) => {
+  const refreshTokenDecoded = jwtProvider.verifyToken(env.REFRESH_TOKEN_SECRET_SIGNATURE, clientRefreshToken)
+  const accessToken = jwtProvider.generateToken(
+    {
+      _id: refreshTokenDecoded._id, email: refreshTokenDecoded.email
+    },
+    env.REFRESH_TOKEN_SECRET_SIGNATURE,
+    env.REFRESH_TOKEN_SECRET_LIFE)
+
+  return { accessToken }
+}
+
 export const userService = {
   createNew,
   getUser,
   verificationAccount,
-  signIn
+  signIn,
+  refreshToken
 }
