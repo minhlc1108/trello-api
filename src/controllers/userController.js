@@ -1,3 +1,4 @@
+import { json } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { userService } from '~/services/userService'
 const createNew = async (req, res, next) => {
@@ -41,6 +42,16 @@ const signIn = async (req, res, next) => {
   }
 }
 
+const signOut = async (req, res, next) => {
+  try {
+    res.clearCookie('accessToken')
+    res.clearCookie('refreshToken')
+    res.status(StatusCodes.OK).json({ message: 'Logged out successfully' })
+  } catch (error) {
+    next(error)
+  }
+}
+
 const refreshToken = (req, res, next) => {
   try {
     const result = userService.refreshToken(req.cookies?.refreshToken)
@@ -56,5 +67,6 @@ export const userController = {
   getUser,
   verificationAccount,
   signIn,
+  signOut,
   refreshToken
 }

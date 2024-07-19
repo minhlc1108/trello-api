@@ -1,10 +1,3 @@
-/* eslint-disable no-console */
-/**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
-
 import express from 'express'
 import cors from 'cors'
 import { corsOptions } from '~/config/cors'
@@ -32,7 +25,7 @@ const START_SERVER = () => {
   app.use(errorHandlingMiddleware)
 
   app.listen(port, hostname, () => {
-    console.log(`Hello Trung Quan Dev, I am running at http://${hostname}:${port}`)
+    console.log(`Hello Minh, I am running at http://${hostname}:${port}`)
   })
 
   // thực hiện các thao tác cleanUp trước khi dừng server
