@@ -14,6 +14,9 @@ Router.route('/refreshToken')
 Router.route('/signIn')
   .post(userValidation.signIn, userController.signIn)
 
+Router.route('/signOut')
+  .get(userController.signOut)
+
 Router.route('/supports/verification')
   .put(userValidation.verificationAccount, userController.verificationAccount)
 

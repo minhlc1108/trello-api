@@ -93,6 +93,7 @@ const signIn = async (reqBody) => {
       env.ACCESS_TOKEN_SECRET_SIGNATURE,
       env.ACCESS_TOKEN_SECRET_LIFE
     )
+    console.log(env.ACCESS_TOKEN_SECRET_LIFE)
 
     const refreshToken = jwtProvider.generateToken(
       { _id: user._id, email: user.email },
@@ -115,8 +116,8 @@ const refreshToken = (clientRefreshToken) => {
     {
       _id: refreshTokenDecoded._id, email: refreshTokenDecoded.email
     },
-    env.REFRESH_TOKEN_SECRET_SIGNATURE,
-    env.REFRESH_TOKEN_SECRET_LIFE)
+    env.ACCESS_TOKEN_SECRET_SIGNATURE,
+    env.ACCESS_TOKEN_SECRET_LIFE)
 
   return { accessToken }
 }

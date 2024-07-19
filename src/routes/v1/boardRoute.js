@@ -8,7 +8,7 @@ import { authMiddleware } from '~/middlewares/authMiddleware'
 const Router = express.Router()
 
 Router.route('/')
-  .get((req, res) => {
+  .get(authMiddleware.isAuthorized, (req, res) => {
     res.status(StatusCodes.OK).json({ message: 'GET: API get list boards' })
   })
   .post(boardValiDation.createNew, boardController.createNew)
