@@ -1,8 +1,3 @@
-/**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
 import 'dotenv/config'
 
 export const env = {
@@ -12,9 +7,13 @@ export const env = {
   APP_PORT: process.env.APP_PORT,
   BUILD_MODE: process.env.BUILD_MODE,
   AUTHOR: process.env.AUTHOR,
-  API_KEY: process.env.API_KEY,
+  MAIL_API_KEY: process.env.MAIL_API_KEY,
   ACCESS_TOKEN_SECRET_SIGNATURE: process.env.ACCESS_TOKEN_SECRET_SIGNATURE,
   ACCESS_TOKEN_SECRET_LIFE: process.env.ACCESS_TOKEN_SECRET_LIFE,
   REFRESH_TOKEN_SECRET_SIGNATURE: process.env.REFRESH_TOKEN_SECRET_SIGNATURE,
-  REFRESH_TOKEN_SECRET_LIFE: process.env.REFRESH_TOKEN_SECRET_LIFE
+  REFRESH_TOKEN_SECRET_LIFE: process.env.REFRESH_TOKEN_SECRET_LIFE,
+
+  CLOUD_NAME: process.env.CLOUD_NAME,
+  CLOUD_API_KEY: process.env.CLOUD_API_KEY,
+  CLOUD_API_KEY_SECRET: process.env.CLOUD_API_KEY_SECRET
 }

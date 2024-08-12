@@ -5,7 +5,7 @@ import { CLIENT_ROOT } from '~/utils/constants'
 const defaultClient = SibApiV3Sdk.ApiClient.instance
 
 const apiKey = defaultClient.authentications['api-key']
-apiKey.apiKey = env.API_KEY
+apiKey.apiKey = env.MAIL_API_KEY
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi()
 
 const sendEmailVerification = async (params) => {

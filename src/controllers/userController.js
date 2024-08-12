@@ -1,4 +1,3 @@
-import { json } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { userService } from '~/services/userService'
 const createNew = async (req, res, next) => {
@@ -62,11 +61,23 @@ const refreshToken = (req, res, next) => {
   }
 }
 
+const update = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded?._id
+    const fileUpload = req.file
+    const result = await userService.update(req.body, userId, fileUpload)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userController = {
   createNew,
   getUser,
   verificationAccount,
   signIn,
   signOut,
-  refreshToken
+  refreshToken,
+  update
 }
