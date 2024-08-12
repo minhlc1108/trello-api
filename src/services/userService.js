@@ -6,6 +6,7 @@ import bcryptjs from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { jwtProvider } from '~/providers/jwtProvider'
 import { env } from '~/config/environment'
+import { cloudinaryProvider } from '~/providers/cloudinaryProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -93,8 +94,6 @@ const signIn = async (reqBody) => {
       env.ACCESS_TOKEN_SECRET_SIGNATURE,
       env.ACCESS_TOKEN_SECRET_LIFE
     )
-    console.log(env.ACCESS_TOKEN_SECRET_LIFE)
-
     const refreshToken = jwtProvider.generateToken(
       { _id: user._id, email: user.email },
       env.REFRESH_TOKEN_SECRET_SIGNATURE,
@@ -122,10 +121,46 @@ const refreshToken = (clientRefreshToken) => {
   return { accessToken }
 }
 
+const update = async (reqBody, userId, fileUpload) => {
+  try {
+    const { currentPassword, newPassword, displayName } = reqBody
+    if (!userId) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED)
+    }
+    const user = await userModel.findOneById(userId)
+
+    let result = {}
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
+    }
+
+    if (fileUpload) {
+      const uploadRespone = await cloudinaryProvider.uploadStream(fileUpload.buffer, 'users')
+      result = await userModel.update(user._id, { avatar: uploadRespone.secure_url })
+    }
+    else if (currentPassword && newPassword) {
+      if (!bcryptjs.compareSync(currentPassword, user.password)) {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Your current password is incorrect!')
+      }
+      result = await userModel.update(user._id, { password: bcryptjs.hashSync(newPassword, 8) })
+    } else {
+      result = await userModel.update(user._id, { displayName: displayName })
+    }
+
+    delete result.verifyToken
+    delete result.password
+    return result
+  } catch (error) {
+    throw error
+  }
+
+}
+
 export const userService = {
   createNew,
   getUser,
   verificationAccount,
   signIn,
-  refreshToken
+  refreshToken,
+  update
 }

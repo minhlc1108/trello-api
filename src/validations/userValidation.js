@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
-import { EMAIL_RULE, PASSWORD_RULE } from '~/utils/validators'
+import { EMAIL_RULE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE, PASSWORD_RULE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -47,7 +47,28 @@ const signIn = async (req, res, next) => {
     await correctCondition.validateAsync(req.body)
     next()
   } catch (error) {
-    console.log(error)
+    const errorMessage = new Error(error).message // lay ValidationError: message
+    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
+    next(customError)
+  }
+}
+
+const update = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    currentPassword: Joi.string().pattern(PASSWORD_RULE).message('Your current password is invalid!'),
+    newPassword: Joi.string().pattern(PASSWORD_RULE).message('Your new password is invalid!'),
+    displayName: Joi.string().trim().min(3).max(50)
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body,
+      {
+        allowUnknown: true,
+        abortEarly: false
+      }
+    )
+    next()
+  } catch (error) {
     const errorMessage = new Error(error).message // lay ValidationError: message
     const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
     next(customError)
@@ -58,4 +79,5 @@ export const userValidation = {
   createNew,
   signIn,
   verificationAccount,
+  update
 }
