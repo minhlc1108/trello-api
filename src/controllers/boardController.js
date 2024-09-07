@@ -2,12 +2,9 @@ import { StatusCodes } from 'http-status-codes'
 import { boardService } from '~/services/boardService'
 const createNew = async (req, res, next) => {
   try {
-    // console.log(req.body)
+    const userId = req.jwtDecoded?._id
+    const createdBoard = await boardService.creatNew(req.body, userId)
 
-    // dieu huong du lieu den tang service
-    const createdBoard = await boardService.creatNew(req.body)
-
-    // tra ve client
     res.status(StatusCodes.CREATED).json(createdBoard)
 
   } catch (error) { next(error) }
@@ -37,7 +34,7 @@ const update = async (req, res, next) => {
 
 const moveCardToDifferenceColumn = async (req, res, next) => {
   try {
-    const result = await boardService.moveCardToDifferenceColumn( req.body)
+    const result = await boardService.moveCardToDifferenceColumn(req.body)
 
     // tra ve client
     res.status(StatusCodes.OK).json(result)
@@ -45,9 +42,19 @@ const moveCardToDifferenceColumn = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getListBoards = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded?._id
+    const result = await boardService.getListBoards(userId, req.query)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
+
 export const boardController = {
   createNew,
   getDetails,
   update,
-  moveCardToDifferenceColumn
+  moveCardToDifferenceColumn,
+  getListBoards
 }

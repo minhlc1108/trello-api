@@ -5,6 +5,7 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { BOARD_TYPES } from '~/utils/constants'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
+import { pagingSkipValue } from '~/utils/algorithms'
 
 // Define Collection (Name and Schema)
 const BOARD_COLLECTION_NAME = 'boards'
@@ -16,6 +17,13 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
 
   columnOrderIds: Joi.array().items(
+    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  ).default([]),
+
+  ownerIds: Joi.array().items(
+    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  ).default([]),
+  memberIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
 
@@ -33,10 +41,16 @@ const validateBeforeCreate = async (data) => {
 }
 
 
-const creatNew = async (data) => {
+const creatNew = async (data, userId) => {
   try {
     const validData = await validateBeforeCreate(data)
-    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData)
+
+    const createData = {
+      ...validData,
+      ownerIds: [new ObjectId(userId)]
+    }
+
+    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(createData)
     return createdBoard
   } catch (error) { throw new Error(error) }
 }
@@ -47,6 +61,33 @@ const findOneById = async (id) => {
       _id: new ObjectId(id)
     })
     return result
+  } catch (error) { throw new Error(error) }
+}
+
+const getListBoards = async (userId, currentPage, itemsPerPage) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
+      {
+        $match: {
+          $or: [{ 'ownerIds': { $all: [new ObjectId(userId)] } }, { 'memberIds': { $all: [new ObjectId(userId)] } }],
+          _destroy: false
+        }
+      },
+      { $sort: { title: 1 } },
+      {
+        $facet: {
+          boards: [
+            { $skip: pagingSkipValue(currentPage, itemsPerPage) },
+            { $limit: itemsPerPage }
+          ],
+          totalBoards: [{ $count: 'countedBoards' }]
+        }
+      }
+    ], { collation: { locale: 'en' } }).toArray()
+    return {
+      boards: result[0].boards || [],
+      totalBoards: result[0].totalBoards[0].countedBoards || 0
+    }
   } catch (error) { throw new Error(error) }
 }
 
@@ -134,6 +175,7 @@ export const boardModel = {
   BOARD_COLLECTION_SCHEMA,
   creatNew,
   findOneById,
+  getListBoards,
   getDetails,
   pushColumnOrderIds,
   update,

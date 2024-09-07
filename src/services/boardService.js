@@ -5,14 +5,15 @@ import { cardModel } from '~/models/cardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
-const creatNew = async (reqBody) => {
+import { DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
+const creatNew = async (reqBody, userId) => {
   try {
     const newBoard = {
       ...reqBody,
       slug: slugify(reqBody.title)
     }
     //Gọi tới tầng Model để xử lý lưu bản ghi newBoard vào trong DB
-    const createdBoard = await boardModel.creatNew(newBoard)
+    const createdBoard = await boardModel.creatNew(newBoard, userId)
     // console.log(createdBoard)
 
     // Lấy bản ghi board sau khi gọi
@@ -72,9 +73,21 @@ const moveCardToDifferenceColumn = async (reqBody) => {
     return { updateResult: 'successfully!' }
   } catch (error) { throw error }
 }
+
+const getListBoards = async (userId, reqQuery) => {
+  try {
+    const { page } = reqQuery
+    const result = await boardModel.getListBoards(userId, page || DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE)
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const boardService = {
   creatNew,
   getDetails,
   update,
-  moveCardToDifferenceColumn
+  moveCardToDifferenceColumn,
+  getListBoards
 }
