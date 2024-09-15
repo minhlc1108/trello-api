@@ -12,7 +12,7 @@ const createNew = async (req, res, next) => {
 
 const getDetails = async (req, res, next) => {
   try {
-    const boardId = req.params.id
+    const { boardId } = req.params
     const board = await boardService.getDetails(boardId)
 
     // tra ve client
@@ -23,7 +23,7 @@ const getDetails = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
-    const boardId = req.params.id
+    const { boardId } = req.params
     const updatedBoard = await boardService.update(boardId, req.body)
 
     // tra ve client

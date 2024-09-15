@@ -15,7 +15,7 @@ const createNew = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
-    const columnId = req.params.id
+    const { columnId } = req.params
     const updatedColumn = await columnService.update(columnId, req.body)
 
     // tra ve client
@@ -26,7 +26,7 @@ const update = async (req, res, next) => {
 
 const deleteItem = async (req, res, next) => {
   try {
-    const columnId = req.params.id
+    const { columnId } = req.params
     const result = await columnService.deleteItem(columnId)
 
     // tra ve client

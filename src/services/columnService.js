@@ -47,9 +47,9 @@ const deleteItem = async (columnId) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Column not found!')
     }
     // xóa column
-    await columnModel.deleteOneById(columnId)
+    await columnModel.update(columnId, { _destroy: true })
     // xóa cards
-    await cardModel.deleteManyByColumnId(columnId)
+    await cardModel.updateManyByColumnId(columnId, { _destroy: true })
     // update columnOrderIds board
     await boardModel.pullColumnOrderIds(deleteColumn)
 

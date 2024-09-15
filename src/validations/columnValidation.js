@@ -24,10 +24,7 @@ const createNew = async (req, res, next) => {
 }
 
 const update = async (req, res, next) => {
-  // không dùng required cho trường hợp update
   const correctCondition = Joi.object({
-    // nếu làm chuyển column qua board khác thì validate boardID
-    // boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     title: Joi.string().min(3).max(50).trim().strict(),
     cardOrderIds: Joi.array().items(
       Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
@@ -35,28 +32,25 @@ const update = async (req, res, next) => {
   })
 
   try {
-    // set abortEarly để không bỏ qua kiểm tra khi đã có lỗi phía trc
     await correctCondition.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
-    //sau khi validate xong thi request di tiep qua controller
     next()
   } catch (error) {
-    const errorMessage = new Error(error).message // lay ValidationError: message
+    const errorMessage = new Error(error).message
     const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
     next(customError)
   }
 }
 
 const deleteItem = async (req, res, next) => {
-  // không dùng required cho trường hợp update
   const correctCondition = Joi.object({
-    id: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+    columnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   })
 
   try {
     await correctCondition.validateAsync(req.params)
     next()
   } catch (error) {
-    const errorMessage = new Error(error).message // lay ValidationError: message
+    const errorMessage = new Error(error).message
     const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
     next(customError)
   }

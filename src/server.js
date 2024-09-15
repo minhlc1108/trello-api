@@ -13,6 +13,11 @@ const START_SERVER = () => {
   const hostname = env.APP_HOST
   const port = env.APP_PORT
 
+  app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+  })
+
   app.use(cookieParser())
   //xử lý cors
   app.use(cors(corsOptions))

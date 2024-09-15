@@ -7,9 +7,9 @@ import { authMiddleware } from '~/middlewares/authMiddleware'
 const Router = express.Router()
 
 Router.route('/')
-  .post(authMiddleware.isAuthorized, columnValiDation.createNew, columnController.createNew)
+  .post(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, columnValiDation.createNew, columnController.createNew)
 
-Router.route('/:id')
-  .put(authMiddleware.isAuthorized, columnValiDation.update, columnController.update)
-  .delete(authMiddleware.isAuthorized, columnValiDation.deleteItem, columnController.deleteItem)
+Router.route('/:columnId')
+  .put(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, columnValiDation.update, columnController.update)
+  .delete(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, columnValiDation.deleteItem, columnController.deleteItem)
 export const columnRoute = Router

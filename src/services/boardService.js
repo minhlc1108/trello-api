@@ -36,9 +36,11 @@ const getDetails = async (boardId) => {
 
     const resBoard = cloneDeep(board)
 
+    resBoard.columns = resBoard.columns.filter(column => !column._destroy)
+
     resBoard.columns.forEach(column => {
       // dùng equals method ObjectId MongoDB
-      column.cards = resBoard.cards.filter(card => card.columnId.equals(column._id))
+      column.cards = resBoard.cards.filter(card => card.columnId.equals(column._id) && !card._destroy)
 
       // dùng toString JS so sánh
       // column.cards = resBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
