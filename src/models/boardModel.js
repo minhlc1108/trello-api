@@ -48,7 +48,7 @@ const creatNew = async (data, userId) => {
 
     const createData = {
       ...validData,
-      ownerIds: [new ObjectId(userId)]
+      ownerIds: [new ObjectId(String(userId))]
     }
 
     const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(createData)
@@ -59,7 +59,8 @@ const creatNew = async (data, userId) => {
 const findOneById = async (id) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id)
+      _id: new ObjectId(String(id)),
+      _destroy: false
     })
     return result
   } catch (error) { throw new Error(error) }
@@ -70,7 +71,7 @@ const getListBoards = async (userId, currentPage, itemsPerPage) => {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       {
         $match: {
-          $or: [{ 'ownerIds': { $all: [new ObjectId(userId)] } }, { 'memberIds': { $all: [new ObjectId(userId)] } }],
+          $or: [{ 'ownerIds': { $all: [new ObjectId(String(userId))] } }, { 'memberIds': { $all: [new ObjectId(String(userId))] } }],
           _destroy: false
         }
       },
@@ -98,7 +99,7 @@ const getDetails = async (id) => {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       {
         $match: {
-          _id: new ObjectId(id),
+          _id: new ObjectId(String(id)),
           _destroy: false
         }
       },
@@ -146,8 +147,8 @@ const getDetails = async (id) => {
 const pushColumnOrderIds = async (column) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(column.boardId) },
-      { $push: { columnOrderIds: new ObjectId(column._id) } },
+      { _id: new ObjectId(String(column.boardId)) },
+      { $push: { columnOrderIds: new ObjectId(String(column._id)) } },
       { returnDocument: 'after' }
     )
 
@@ -163,10 +164,10 @@ const update = async (boardId, updateData) => {
       }
     })
 
-    if (updateData.columnOrderIds) updateData.columnOrderIds = updateData.columnOrderIds.map(_id => (new ObjectId(_id)))
+    if (updateData.columnOrderIds) updateData.columnOrderIds = updateData.columnOrderIds.map(_id => (new ObjectId(String(_id))))
 
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(boardId) },
+      { _id: new ObjectId(String(boardId)) },
       { $set: updateData },
       { returnDocument: 'after' }
     )
@@ -178,8 +179,8 @@ const update = async (boardId, updateData) => {
 const pullColumnOrderIds = async (column) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(column.boardId) },
-      { $pull: { columnOrderIds: new ObjectId(column._id) } },
+      { _id: new ObjectId(String(column.boardId)) },
+      { $pull: { columnOrderIds: new ObjectId(String(column._id)) } },
       { returnDocument: 'after' }
     )
 

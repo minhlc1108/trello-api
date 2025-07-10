@@ -15,8 +15,13 @@ const getDetails = async (req, res, next) => {
     const { boardId } = req.params
     const board = await boardService.getDetails(boardId)
 
+    const responseData = {
+      ...board,
+      role: req.role ?? null
+    }
+
     // tra ve client
-    res.status(StatusCodes.OK).json(board)
+    res.status(StatusCodes.OK).json(responseData)
 
   } catch (error) { next(error) }
 }

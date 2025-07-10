@@ -41,9 +41,6 @@ const getDetails = async (boardId) => {
     resBoard.columns.forEach(column => {
       // dùng equals method ObjectId MongoDB
       column.cards = resBoard.cards.filter(card => card.columnId.equals(column._id) && !card._destroy)
-
-      // dùng toString JS so sánh
-      // column.cards = resBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
     })
 
     delete resBoard.cards

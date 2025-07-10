@@ -6,16 +6,6 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 
 const createNew = async (req, res, next) => {
-  /**
-   * mặc định chúng ta không cần phải custom message ở phía BE, để cho FE tự validate
-   * và custom message phía FE cho đẹp
-   * BE chỉ cần validate đảm bảo dữ liệu chuẩn xác và trả về message mặc định từ thư viện
-   * là được.
-   * Quan trọng: việc validate dữ liệu bắt buộc phải có ở phía BE vì đây là điểm cuối để
-   * lưu dữ liệu vào DB
-   * và thông thường trong thực tế. điều tốt nhất cho hệ thống là hãy luôn validate dữ liệu
-   * ở cả BE VÀ fe
-   */
   const correctCondition = Joi.object({
     title: Joi.string().required().min(3).max(50).trim().strict(),
     description: Joi.string().required().min(3).max(256).trim().strict(),
@@ -28,7 +18,7 @@ const createNew = async (req, res, next) => {
     //sau khi validate xong thi request di tiep qua controller
     next()
   } catch (error) {
-    const errorMessage = new Error(error).message // lay ValidationError: message
+    const errorMessage = new Error(error).message
     const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
     next(customError)
   }
@@ -47,12 +37,10 @@ const update = async (req, res, next) => {
   })
 
   try {
-    // set abortEarly để không bỏ qua kiểm tra khi đã có lỗi phía trc
     await correctCondition.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
-    //sau khi validate xong thi request di tiep qua controller
     next()
   } catch (error) {
-    const errorMessage = new Error(error).message // lay ValidationError: message
+    const errorMessage = new Error(error).message
     const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
     next(customError)
   }
@@ -61,6 +49,7 @@ const update = async (req, res, next) => {
 
 const moveCardToDifferenceColumn = async (req, res, next) => {
   const correctCondition = Joi.object({
+    boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     cardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     prevColumnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     prevCardOrderIds: Joi.array().required().items(
@@ -73,12 +62,10 @@ const moveCardToDifferenceColumn = async (req, res, next) => {
   })
 
   try {
-    // set abortEarly để không bỏ qua kiểm tra khi đã có lỗi phía trc
     await correctCondition.validateAsync(req.body, { abortEarly: false })
-    //sau khi validate xong thi request di tiep qua controller
     next()
   } catch (error) {
-    const errorMessage = new Error(error).message // lay ValidationError: message
+    const errorMessage = new Error(error).message
     const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
     next(customError)
   }
