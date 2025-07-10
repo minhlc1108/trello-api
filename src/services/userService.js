@@ -136,15 +136,15 @@ const update = async (reqBody, userId, fileUpload) => {
 
     if (fileUpload) {
       const uploadRespone = await cloudinaryProvider.uploadStream(fileUpload.buffer, 'users')
-      result = await userModel.update(user._id, { avatar: uploadRespone.secure_url })
+      result = await userModel.update(user._id, { avatar: uploadRespone.secure_url, updatedAt: Date.now() })
     }
     else if (currentPassword && newPassword) {
       if (!bcryptjs.compareSync(currentPassword, user.password)) {
         throw new ApiError(StatusCodes.FORBIDDEN, 'Your current password is incorrect!')
       }
-      result = await userModel.update(user._id, { password: bcryptjs.hashSync(newPassword, 8) })
+      result = await userModel.update(user._id, { password: bcryptjs.hashSync(newPassword, 8), updatedAt: Date.now() })
     } else {
-      result = await userModel.update(user._id, { displayName: displayName })
+      result = await userModel.update(user._id, { displayName: displayName, updatedAt: Date.now() })
     }
 
     delete result.verifyToken

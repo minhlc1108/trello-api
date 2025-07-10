@@ -15,5 +15,5 @@ Router.route('/:boardId')
 
 // route support move card
 Router.route('/supports/move_card')
-  .put(authMiddleware.isAuthorized, boardValiDation.moveCardToDifferenceColumn, boardController.moveCardToDifferenceColumn)
+  .put(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, boardValiDation.moveCardToDifferenceColumn, boardController.moveCardToDifferenceColumn)
 export const boardRoute = Router

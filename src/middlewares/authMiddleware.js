@@ -3,7 +3,7 @@ import { env } from '~/config/environment'
 import { boardModel } from '~/models/boardModel'
 import { jwtProvider } from '~/providers/jwtProvider'
 import ApiError from '~/utils/ApiError'
-import { BOARD_TYPES } from '~/utils/constants'
+import { BOARD_ROLES, BOARD_TYPES } from '~/utils/constants'
 
 const isAuthorized = (req, res, next) => {
   const accessToken = req.cookies?.accessToken
@@ -28,6 +28,9 @@ const checkPermissionBoard = async (req, res, next) => {
   try {
     const { _id: userId } = req.jwtDecoded
     const boardId = req.body.boardId || req.params.boardId
+    if (!boardId) {
+      return next(new ApiError(StatusCodes.BAD_REQUEST, 'Board ID is required!'))
+    }
     if (!userId) {
       return next(new ApiError(StatusCodes.UNAUTHORIZED, 'You must log in first!'))
     }
@@ -36,7 +39,10 @@ const checkPermissionBoard = async (req, res, next) => {
       return next(new ApiError(StatusCodes.NOT_FOUND, 'Board not found!'))
     }
 
-    if (board.ownerIds.some(id => id.toString() === userId) || board.memberIds.some(id => id.toString === userId)) {
+    const isOwner = board.ownerIds.some(id => id.toString() === userId)
+    const isMember = board.memberIds.some(id => id.toString() === userId)
+    if (isOwner || isMember) {
+      req.role = isOwner ? BOARD_ROLES.ADMIN : isMember ? BOARD_ROLES.MEMBER : null
       return next()
     }
 

@@ -25,6 +25,7 @@ const createNew = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const correctCondition = Joi.object({
+    boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     title: Joi.string().min(3).max(50).trim().strict(),
     cardOrderIds: Joi.array().items(
       Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
@@ -45,9 +46,12 @@ const deleteItem = async (req, res, next) => {
   const correctCondition = Joi.object({
     columnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   })
-
+  const correctConditionReq = Joi.object({
+    boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  })
   try {
     await correctCondition.validateAsync(req.params)
+    await correctConditionReq.validateAsync(req.body, { abortEarly: false })
     next()
   } catch (error) {
     const errorMessage = new Error(error).message
