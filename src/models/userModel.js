@@ -72,7 +72,19 @@ const update = async (userId, updateData) => {
   } catch (error) {
     throw new Error(error)
   }
+}
 
+const searchUser = async (searchQuery) => {
+  try {
+    const regex = new RegExp(searchQuery, 'i')
+    const users = await GET_DB().collection(USER_COLLECTION_NAME).find({
+      isActive: true,
+      $or: [{ email: regex }, { username: regex }, { displayName: regex }]
+    }).project({ email: 1, username: 1, displayName: 1, avatar: 1 }).limit(10).toArray()
+    return users || []
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 
 export const userModel = {
@@ -81,6 +93,7 @@ export const userModel = {
   createNew,
   findOneByEmail,
   findOneById,
-  update
+  update,
+  searchUser
 }
 

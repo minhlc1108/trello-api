@@ -20,5 +20,12 @@ export const CARD_MEMBERS_ACTION = {
   LEAVE: 'leave'
 }
 
+export const BOARD_INVITATION_STATUS = {
+  PENDING: 'pending',
+  ACCEPTED: 'accepted',
+  REJECTED: 'rejected'
+}
+
+
 export const DEFAULT_ITEMS_PER_PAGE = 18
 export const DEFAULT_CURRENT_PAGE = 1

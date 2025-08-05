@@ -156,11 +156,21 @@ const update = async (reqBody, userId, fileUpload) => {
 
 }
 
+const searchUser = async (searchQuery) => {
+  try {
+    const users = await userModel.searchUser(searchQuery)
+    return users
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
   createNew,
   getUser,
   verificationAccount,
   signIn,
   refreshToken,
-  update
+  update,
+  searchUser
 }
