@@ -23,7 +23,10 @@ Router.route('/signOut')
 Router.route('/supports/verification')
   .put(userValidation.verificationAccount, userController.verificationAccount)
 
-Router.route('/:email')
+Router.route('/search')
+  .get(authMiddleware.isAuthorized, userController.searchUser)
+
+Router.route('/email/:email')
   .get(userController.getUser)
 
 export const userRoute = Router

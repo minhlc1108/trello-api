@@ -72,6 +72,16 @@ const update = async (req, res, next) => {
   }
 }
 
+const searchUser = async (req, res, next) => {
+  try {
+    const searchQuery = req.query.q
+    const result = await userService.searchUser(searchQuery)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userController = {
   createNew,
   getUser,
@@ -79,5 +89,6 @@ export const userController = {
   signIn,
   signOut,
   refreshToken,
-  update
+  update,
+  searchUser
 }
