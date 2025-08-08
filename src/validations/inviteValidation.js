@@ -22,13 +22,11 @@ const inviteToBoard = async (req, res, next) => {
 
 const updateInvite = async (req, res, next) => {
   const correctCondition = Joi.object({
-    inviteId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
-    boardId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
     status: Joi.string().valid(...Object.values(BOARD_INVITATION_STATUS)).required()
   })
 
   try {
-    await correctCondition.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
     next()
   } catch (error) {
     const errorMessage = new Error(error).message

@@ -2,7 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { BOARD_TYPES } from '~/utils/constants'
+import { BOARD_ROLES, BOARD_TYPES } from '~/utils/constants'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
 import { pagingSkipValue } from '~/utils/algorithms'
@@ -190,6 +190,57 @@ const pullColumnOrderIds = async (column) => {
   }
 }
 
+const pushMember = async (boardId, userId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(boardId)), _destroy: false },
+      { $push: { memberIds: new ObjectId(String(userId)) } },
+      { returnDocument: 'after' }
+    )
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const changeRole = async (boardId, userId, role) => {
+  try {
+    if (role === BOARD_ROLES.ADMIN) {
+      const updatedBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+        { _id: new ObjectId(String(boardId)), _destroy: false },
+        { $push: { ownerIds: new ObjectId(String(userId)) }, $pull: { memberIds: new ObjectId(String(userId)) } },
+        { returnDocument: 'after' }
+      )
+      return updatedBoard
+    } else {
+      const updatedBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+        { _id: new ObjectId(String(boardId)), _destroy: false },
+        { $pull: { ownerIds: new ObjectId(String(userId)) }, $push: { memberIds: new ObjectId(String(userId)) } },
+        { returnDocument: 'after' }
+      )
+
+      return updatedBoard
+    }
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const removeMember = async (boardId, userId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(boardId)), _destroy: false },
+      { $pull: { memberIds: new ObjectId(String(userId)), ownerIds: new ObjectId(String(userId)) } },
+      { returnDocument: 'after' }
+    )
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -199,5 +250,8 @@ export const boardModel = {
   getDetails,
   pushColumnOrderIds,
   update,
-  pullColumnOrderIds
+  pullColumnOrderIds,
+  pushMember,
+  changeRole,
+  removeMember
 }

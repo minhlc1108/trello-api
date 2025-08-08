@@ -13,6 +13,15 @@ Router.route('/:boardId')
   .get(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, boardController.getDetails)
   .put(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, boardValiDation.update, boardController.update)
 
+Router.route('/changeRole/:boardId')
+  .put(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, boardValiDation.changeRole, boardController.changeRole)
+
+Router.route('/leaveBoard/:boardId')
+  .put(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, boardController.leaveBoard)
+
+Router.route('/removeMember/:boardId')
+  .put(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, boardValiDation.removeMember, boardController.removeMember)
+
 // route support move card
 Router.route('/supports/move_card')
   .put(authMiddleware.isAuthorized, authMiddleware.checkPermissionBoard, boardValiDation.moveCardToDifferenceColumn, boardController.moveCardToDifferenceColumn)

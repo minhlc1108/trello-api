@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
 import { columnModel } from '~/models/columnModel'
@@ -5,7 +6,7 @@ import { cardModel } from '~/models/cardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
-import { DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
+import { BOARD_ROLES, DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
 const creatNew = async (reqBody, userId) => {
   try {
     const newBoard = {
@@ -54,6 +55,10 @@ const update = async (boardId, reqBody) => {
       ...reqBody,
       updatedAt: Date.now()
     }
+    const board = await boardModel.findOneById(boardId)
+    if (!board) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
+    }
     const updatedBoard = await boardModel.update(boardId, updateData)
 
     return updatedBoard
@@ -83,10 +88,102 @@ const getListBoards = async (userId, reqQuery) => {
   }
 }
 
+const changeRole = async (boardId, currentUserId, userId, role) => {
+  try {
+    const board = await boardModel.findOneById(boardId)
+    if (!board) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
+    }
+
+    // Kiểm tra xem người dùng hiện tại có quyền thay đổi vai trò không
+    if (!board.ownerIds.some(ownerId => ownerId.equals(currentUserId))) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'You do not have permission to change roles on this board.')
+    }
+
+    if (!board.ownerIds.some(ownerId => ownerId.equals(userId)) && !board.memberIds.some(memberId => memberId.equals(userId))) {
+      throw new ApiError(StatusCodes.FORBIDDEN, `User ${userId} is not a member of this board.`)
+    }
+
+    switch (role) {
+      case BOARD_ROLES.ADMIN:
+        if (board.ownerIds.some(ownerId => ownerId.equals(userId))) {
+          throw new ApiError(StatusCodes.BAD_REQUEST, 'User is already an admin.')
+        }
+        break
+      case BOARD_ROLES.MEMBER:
+        if (board.memberIds.some(memberId => memberId.equals(userId))) {
+          throw new ApiError(StatusCodes.BAD_REQUEST, 'User is already a member of this board.')
+        }
+        break
+    }
+
+    if (userId === currentUserId && board.ownerIds.length === 1) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Board must have at least one owner.')
+    }
+
+    const updatedBoard = await boardModel.changeRole(boardId, userId, role)
+
+    return updatedBoard
+  } catch (error) {
+    throw error
+  }
+}
+
+const leaveBoard = async (boardId, userId) => {
+  try {
+    const board = await boardModel.findOneById(boardId)
+    if (!board) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
+    }
+    if (!board.memberIds.some(memberId => memberId.equals(userId)) && !board.ownerIds.some(ownerId => ownerId.equals(userId))) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'You are not a member of this board.')
+    }
+
+    if (board.ownerIds.length === 1 && board.ownerIds[0].toString() === userId) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'You cannot leave the board as you are the only owner.')
+    }
+
+    const updatedBoard = await boardModel.removeMember(boardId, userId)
+    return updatedBoard
+  } catch (error) {
+    throw error
+  }
+}
+
+const removeMember = async (boardId, currentUserId, userId) => {
+  try {
+    const board = await boardModel.findOneById(boardId)
+    if (!board) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
+    }
+
+    if (!board.ownerIds.some(ownerId => ownerId.equals(currentUserId))) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'You do not have permission to remove members from this board.')
+    }
+
+    if (userId === currentUserId) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'You cannot remove yourself from the board.')
+    }
+
+    if (!board.memberIds.some(memberId => memberId.equals(userId)) && !board.ownerIds.some(ownerId => ownerId.equals(userId))) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'User is not a member of this board.')
+    }
+
+    const updatedBoard = await boardModel.removeMember(boardId, userId)
+
+    return updatedBoard
+  } catch (error) {
+    throw error
+  }
+}
+
 export const boardService = {
   creatNew,
   getDetails,
   update,
   moveCardToDifferenceColumn,
-  getListBoards
+  getListBoards,
+  changeRole,
+  leaveBoard,
+  removeMember
 }

@@ -19,10 +19,9 @@ const inviteToBoard = async (req, res, next) => {
 
 const getInvites = async (req, res, next) => {
   try {
-    const { boardId } = req.params
     const userId = req.jwtDecoded?._id
 
-    const invites = await inviteService.getInvites(boardId, userId)
+    const invites = await inviteService.getInvites(userId)
     res.status(StatusCodes.OK).json(invites)
   } catch (error) {
     next(error)
@@ -43,8 +42,21 @@ const updateInvite = async (req, res, next) => {
   }
 }
 
+const deleteInvite = async (req, res, next) => {
+  try {
+    const { inviteId } = req.params
+    const userId = req.jwtDecoded?._id
+
+    const result = await inviteService.deleteInvite(inviteId, userId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const inviteController = {
   inviteToBoard,
   getInvites,
-  updateInvite
+  updateInvite,
+  deleteInvite
 }

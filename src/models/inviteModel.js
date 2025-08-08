@@ -3,6 +3,8 @@ import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { BOARD_INVITATION_STATUS } from '~/utils/constants'
+import { userModel } from './userModel'
+import { boardModel } from './boardModel'
 
 const INVITE_COLLECTION_NAME = 'invites'
 const INVITE_COLLECTION_SCHEMA = Joi.object({
@@ -49,22 +51,54 @@ const findOneById = async (id) => {
   }
 }
 
-const getInvitesOfUserAtBoard = async (boardId, userId) => {
+const getInvitesOfUser = async (userId) => {
   try {
-    const result = await GET_DB().collection(INVITE_COLLECTION_NAME).find({
-      boardId: new ObjectId(String(boardId)),
-      inviteeId: new ObjectId(String(userId)),
-      _destroy: false
-    }).toArray()
+    const result = await GET_DB().collection(INVITE_COLLECTION_NAME).aggregate([
+      {
+        $match: {
+          inviteeId: new ObjectId(String(userId)),
+          _destroy: false
+        }
+      },
+      {
+        $lookup: {
+          from: userModel.USER_COLLECTION_NAME,
+          localField: 'inviterId',
+          foreignField: '_id',
+          as: 'inviter',
+          pipeline: [
+            { $project: { 'password': 0, 'verifyToken': 0 } }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: userModel.USER_COLLECTION_NAME,
+          localField: 'inviteeId',
+          foreignField: '_id',
+          as: 'invitee',
+          pipeline: [
+            { $project: { 'password': 0, 'verifyToken': 0 } }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: boardModel.BOARD_COLLECTION_NAME,
+          localField: 'boardId',
+          foreignField: '_id',
+          as: 'board'
+        }
+      }
+    ]).toArray()
     return result
   } catch (error) {
     throw new Error(error)
   }
 }
 
-const updateInvite = async (id, data) => {
+const updateInvite = async (id, updateData) => {
   try {
-    const updateData = { ...data }
 
     Object.keys(updateData).forEach(key => {
       if (INVALID_UPDATE_FIELDS.includes(key)) {
@@ -74,10 +108,10 @@ const updateInvite = async (id, data) => {
 
     const result = await GET_DB().collection(INVITE_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(String(id)), _destroy: false },
-      { $set: { ...updateData, updatedAt: Date.now() } },
+      { $set: updateData },
       { returnDocument: 'after' }
     )
-    return result.value
+    return result
   } catch (error) {
     throw new Error(error)
   }
@@ -86,6 +120,6 @@ const updateInvite = async (id, data) => {
 export const inviteModel = {
   inviteManyUsersToBoard,
   findOneById,
-  getInvitesOfUserAtBoard,
+  getInvitesOfUser,
   updateInvite
 }
