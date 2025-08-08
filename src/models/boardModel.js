@@ -66,13 +66,29 @@ const findOneById = async (id) => {
   } catch (error) { throw new Error(error) }
 }
 
-const getListBoards = async (userId, currentPage, itemsPerPage) => {
+const getListBoards = async (userId, currentPage, itemsPerPage, filters) => {
   try {
+    let queryConditions = [
+      {
+        $or: [
+          { ownerIds: { $all: [new ObjectId(String(userId))] } },
+          { memberIds: { $all: [new ObjectId(String(userId))] } }
+        ]
+      },
+      { _destroy: false }
+    ]
+    if (filters) {
+      Object.keys(filters).forEach(key => {
+        queryConditions.push({
+          [key]: { $regex: new RegExp(filters[key], 'i') }
+        })
+      })
+    }
+
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       {
         $match: {
-          $or: [{ 'ownerIds': { $all: [new ObjectId(String(userId))] } }, { 'memberIds': { $all: [new ObjectId(String(userId))] } }],
-          _destroy: false
+          $and: queryConditions
         }
       },
       { $sort: { title: 1 } },

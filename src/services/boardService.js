@@ -78,10 +78,9 @@ const moveCardToDifferenceColumn = async (reqBody) => {
   } catch (error) { throw error }
 }
 
-const getListBoards = async (userId, reqQuery) => {
+const getListBoards = async (userId, currentPage = DEFAULT_CURRENT_PAGE, itemsPerPage = DEFAULT_ITEMS_PER_PAGE, queryFilters) => {
   try {
-    const { page } = reqQuery
-    const result = await boardModel.getListBoards(userId, page || DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE)
+    const result = await boardModel.getListBoards(userId, currentPage, itemsPerPage, queryFilters)
     return result
   } catch (error) {
     throw error
