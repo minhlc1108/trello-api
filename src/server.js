@@ -10,11 +10,15 @@ import cookieParser from 'cookie-parser'
 import { createServer } from 'node:http'
 import { Server } from 'socket.io'
 import inviteUserToBoardSocket from './sockets/inviteUserToBoardSocket'
+import leaveBoardSocket from './sockets/leaveBoardSocket'
+import changeBoardDataSocket from './sockets/changeBoardDataSocket'
+import joinBoardSocket from './sockets/joinBoardSocket'
+import changeActiveCardSocket from './sockets/changeActiveCardSocket'
 
 const START_SERVER = () => {
   const app = express()
   const server = createServer(app)
-  const io = new Server(server, { cors: corsOptions })
+  const io = new Server(server, { cors: corsOptions, connectionStateRecovery: {} })
   const hostname = env.APP_HOST
   const port = env.APP_PORT
 
@@ -36,6 +40,10 @@ const START_SERVER = () => {
 
   io.on('connection', (socket) => {
     inviteUserToBoardSocket(socket)
+    joinBoardSocket(socket)
+    changeBoardDataSocket(socket)
+    leaveBoardSocket(socket)
+    changeActiveCardSocket(socket)
   })
 
 

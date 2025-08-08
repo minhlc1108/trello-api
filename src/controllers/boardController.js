@@ -49,8 +49,10 @@ const moveCardToDifferenceColumn = async (req, res, next) => {
 
 const getListBoards = async (req, res, next) => {
   try {
+    const { currentPage, itemsPerPage, q } = req.query
+    const queryFilters = q
     const userId = req.jwtDecoded?._id
-    const result = await boardService.getListBoards(userId, req.query)
+    const result = await boardService.getListBoards(userId, currentPage, itemsPerPage, queryFilters)
 
     res.status(StatusCodes.OK).json(result)
   } catch (error) { next(error) }
