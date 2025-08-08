@@ -7,9 +7,14 @@ import { env } from '~/config/environment'
 import { API_V1 } from '~/routes/v1'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import cookieParser from 'cookie-parser'
+import { createServer } from 'node:http'
+import { Server } from 'socket.io'
+import inviteUserToBoardSocket from './sockets/inviteUserToBoardSocket'
+
 const START_SERVER = () => {
   const app = express()
-
+  const server = createServer(app)
+  const io = new Server(server, { cors: corsOptions })
   const hostname = env.APP_HOST
   const port = env.APP_PORT
 
@@ -29,7 +34,12 @@ const START_SERVER = () => {
   //Middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
-  app.listen(port, hostname, () => {
+  io.on('connection', (socket) => {
+    inviteUserToBoardSocket(socket)
+  })
+
+
+  server.listen(port, hostname, () => {
     console.log(`Hello Minh, I am running at http://${hostname}:${port}`)
   })
 

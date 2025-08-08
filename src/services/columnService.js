@@ -33,6 +33,10 @@ const update = async (columnId, reqBody) => {
       ...reqBody,
       updatedAt: Date.now()
     }
+    const column = await columnModel.findOneById(columnId)
+    if (!column) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Column not found!')
+    }
     const updatedColumn = await columnModel.update(columnId, updateData)
 
     return updatedColumn
