@@ -25,8 +25,7 @@ const validateBeforeCreate = async (data) => {
 const findOneByEmail = async (email) => {
   try {
     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
-      email: email,
-      isActive: true
+      email: email
     })
     return result
   } catch (error) {
@@ -37,8 +36,7 @@ const findOneByEmail = async (email) => {
 const findOneById = async (id) => {
   try {
     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
-      _id: new ObjectId(String(id)),
-      isActive: true
+      _id: new ObjectId(String(id))
     })
     return result
   } catch (error) { throw new Error(error) }

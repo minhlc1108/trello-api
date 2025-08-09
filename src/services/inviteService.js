@@ -19,6 +19,10 @@ const inviteToBoard = async (inviteeIds, boardId, inviterId, role) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Inviter not found')
     }
 
+    if (inviter.isActive === false) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Your account is not active!')
+    }
+
     // Check if the inviter is a member of the board
     if (!role) {
       throw new ApiError(StatusCodes.FORBIDDEN, 'You are not a member of this board')
@@ -32,6 +36,15 @@ const inviteToBoard = async (inviteeIds, boardId, inviterId, role) => {
           _id: inviteeId,
           status: StatusCodes.NOT_FOUND,
           message: 'User not found'
+        })
+        continue
+      }
+
+      if (invitee.isActive === false) {
+        result.push({
+          _id: inviteeId,
+          status: StatusCodes.UNAUTHORIZED,
+          message: 'User is not active'
         })
         continue
       }

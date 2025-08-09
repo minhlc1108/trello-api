@@ -27,9 +27,9 @@ const createNew = async (reqBody) => {
     const createdUser = await userModel.createNew(newUser)
     const getNewUser = await userModel.findOneById(createdUser.insertedId)
     await emailProvider.sendEmailVerification({ email: getNewUser.email, name: getNewUser.username, token: getNewUser.verifyToken })
-
     delete getNewUser.password
     delete getNewUser.verifyToken
+
     return getNewUser
   } catch (error) {
     throw error
@@ -128,6 +128,10 @@ const update = async (reqBody, userId, fileUpload) => {
       throw new ApiError(StatusCodes.UNAUTHORIZED)
     }
     const user = await userModel.findOneById(userId)
+
+    if (user.isActive === false) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Your account is not active!')
+    }
 
     let result = {}
     if (!user) {
