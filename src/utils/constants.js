@@ -1,8 +1,10 @@
-export const WHITELIST_DOMAINS = [
+import { env } from '~/config/environment'
 
+export const WHITELIST_DOMAINS = [
+  'https://trello-web-blue-pi.vercel.app'
 ]
 
-export const CLIENT_ROOT = 'http://localhost:5173'
+export const CLIENT_ROOT = env.BUILD_MODE === 'dev' ? 'http://localhost:5173' : 'https://trello-web-blue-pi.vercel.app'
 
 export const BOARD_TYPES = {
   PUBLIC: 'public',
