@@ -19,8 +19,6 @@ const START_SERVER = () => {
   const app = express()
   const server = createServer(app)
   const io = new Server(server, { cors: corsOptions, connectionStateRecovery: {} })
-  const hostname = env.APP_HOST
-  const port = env.APP_PORT
 
   app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store')
@@ -46,10 +44,15 @@ const START_SERVER = () => {
     changeActiveCardSocket(socket)
   })
 
-
-  server.listen(port, hostname, () => {
-    console.log(`Hello Minh, I am running at http://${hostname}:${port}`)
-  })
+  if (env.BUILD_MODE === 'production') {
+    server.listen(process.env.PORT, () => {
+      console.log(`Production: Hi ${env.AUTHOR} I am running at production mode on port ${process.env.PORT}`)
+    })
+  } else {
+    server.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+      console.log(`Hello ${env.AUTHOR}, I am running at http://${env.LOCAL_DEV_APP_HOST}:${env.LOCAL_DEV_APP_PORT}`)
+    })
+  }
 
   // thực hiện các thao tác cleanUp trước khi dừng server
   exitHook(() => {
